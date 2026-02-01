@@ -10,8 +10,10 @@ const Summary = () => {
 
       <div className="section">
         <span>
+         <i className="fa fa-inr section-icon equity-icon" aria-hidden="true"></i>
           <p>Equity</p>
         </span>
+
 
         <div className="data">
           <div className="first">
@@ -34,8 +36,10 @@ const Summary = () => {
 
       <div className="section">
         <span>
-          <p>Holdings (13)</p>
+          <i className="fa fa-briefcase section-icon holdings-icon" aria-hidden="true"></i>
+        <p>Holdings (13)</p>
         </span>
+
 
         <div className="data">
           <div className="first">

@@ -842,4 +842,27 @@ hr {
   background-color: rgb(212, 212, 212);
 }
 
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;       
+  margin-right: 10px;
+}
+
+.equity-icon {
+  color: #4caf50;       
+}
+
+.holdings-icon {
+  color: #4184f3;       
+}
+
+.section-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f4f6f8;
+}
+
 
