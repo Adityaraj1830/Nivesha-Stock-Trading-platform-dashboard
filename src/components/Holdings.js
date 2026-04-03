@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import axios, { all } from "axios";
+import axios from "axios";
 import { VerticalGraph } from "./VerticalGraph";
 
 const Holdings = () => {
   const [allHoldings, setAllHoldings] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:3002/allHoldings").then((res) => {
+    axios.get("https://nivesha-stock-trading-platform-backend-1.onrender.com/allHoldings").then((res) => {
       
       setAllHoldings(res.data);
     });
