@@ -1,62 +1,77 @@
+/* Layout */
 .platforms-container {
   padding: 40px;
+  background: #f6f8fb;
+  min-height: 100vh;
 }
 
-/* Title */
 .platforms-title {
-  font-size: 30px;
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .platforms-subtitle {
-  color: #777;
-  margin-bottom: 30px;
+  color: #6b7280;
+  margin-bottom: 28px;
 }
 
-/* GRID */
+/* Grid */
 .platforms-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
 }
 
-/* CARD */
+/* Card */
 .platform-card {
+  position: relative;
   background: white;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
-  transition: 0.3s;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  padding: 26px;
+  border-radius: 14px;
+  text-align: left;
+  transition: all 0.35s ease;
+  cursor: pointer;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+  overflow: hidden;
+  border: 1px solid transparent;
 }
 
+/* 🔥 SOFT HOVER (UPDATED) */
 .platform-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  transform: translateY(-10px) scale(1.02);
+
+  /* soft gradient background */
+  background: linear-gradient(135deg, #eef4ff, #f0fff9);
+
+  /* light border */
+  border: 1px solid rgba(65, 132, 243, 0.2);
+
+  /* soft shadow */
+  box-shadow: 0 10px 30px rgba(65, 132, 243, 0.15);
 }
 
+/* Icon */
+.platform-icon {
+  font-size: 42px;
+  color: #4184f3;
+  margin-bottom: 12px;
+  transition: 0.3s;
+}
+
+/* 🔥 SOFT ICON COLOR */
+.platform-card:hover .platform-icon {
+  transform: scale(1.15);
+  color: #5b8def; /* softer blue */
+}
+
+/* Text */
 .platform-card h3 {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 18px;
 }
 
 .platform-card p {
   font-size: 14px;
-  color: gray;
-  margin-bottom: 15px;
-}
-
-/* BUTTON */
-.platform-card button {
-  padding: 10px 20px;
-  border: none;
-  background: #4184f3;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.platform-card button:hover {
-  background: #2f6fe0;
+  color: #6b7280;
 }

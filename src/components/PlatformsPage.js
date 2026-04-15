@@ -1,13 +1,22 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import "./PlatformsPage.css";
+
+import BarChartIcon from "@mui/icons-material/BarChart";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 
 const PlatformsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="platforms-container">
-
+    <motion.div
+      className="platforms-container"
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <h2 className="platforms-title">Our Platforms</h2>
       <p className="platforms-subtitle">
         Explore powerful tools to manage your investments
@@ -15,44 +24,41 @@ const PlatformsPage = () => {
 
       <div className="platforms-grid">
 
-        {/* Trading Platform */}
-        <div className="platform-card">
-          <h3>Trading Platform</h3>
-          <p>Execute trades and view market overview</p>
-          <button onClick={() => navigate("/")}>
-            Open
-          </button>
-        </div>
-
         {/* Analytics */}
-        <div className="platform-card">
+        <motion.div 
+          className="platform-card"
+          whileHover={{ scale: 1.05 }}
+          onClick={() => navigate("/")}
+        >
+          <BarChartIcon className="platform-icon" />
           <h3>Analytics</h3>
           <p>Track performance, P&L and insights</p>
-          <button onClick={() => navigate("/")}>
-            Open
-          </button>
-        </div>
+        </motion.div>
 
         {/* Portfolio */}
-        <div className="platform-card">
+        <motion.div 
+          className="platform-card"
+          whileHover={{ scale: 1.05 }}
+          onClick={() => navigate("/holdings")}
+        >
+          <AccountBalanceWalletIcon className="platform-icon" />
           <h3>Portfolio</h3>
           <p>View your holdings and investments</p>
-          <button onClick={() => navigate("/holdings")}>
-            Open
-          </button>
-        </div>
+        </motion.div>
 
         {/* Funds */}
-        <div className="platform-card">
+        <motion.div 
+          className="platform-card"
+          whileHover={{ scale: 1.05 }}
+          onClick={() => navigate("/funds")}
+        >
+          <MonetizationOnIcon className="platform-icon" />
           <h3>Funds Manager</h3>
           <p>Add or withdraw funds securely</p>
-          <button onClick={() => navigate("/funds")}>
-            Open
-          </button>
-        </div>
+        </motion.div>
 
       </div>
-    </div>
+    </motion.div>
   );
 };
 
