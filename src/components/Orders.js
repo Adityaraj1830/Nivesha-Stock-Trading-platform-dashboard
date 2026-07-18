@@ -1,48 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
+
+import GeneralContext from "./GeneralContext";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("ALL");
 
-  // 🔥 FETCH ORDERS FROM BACKEND
+  const { refreshKey } = useContext(GeneralContext);
+
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:3002/allOrders"
-      );
-      setOrders(res.data);
-    } catch (err) {
-      console.log(err);
+      const response = await axios.get("http://localhost:3002/allOrders");
+
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
     }
   };
 
   useEffect(() => {
     fetchOrders();
+  }, [refreshKey]);
 
-    // 🔥 AUTO REFRESH (REAL-TIME FEEL)
-    const interval = setInterval(fetchOrders, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // 🔥 FILTER
   const filteredOrders =
-    filter === "ALL"
-      ? orders
-      : orders.filter((o) => o.mode === filter);
+    filter === "ALL" ? orders : orders.filter((order) => order.mode === filter);
 
-  // 🔥 CANCEL ORDER
   const handleCancel = async (id) => {
-    await axios.post("http://localhost:3002/cancelOrder", { id });
-    fetchOrders();
+    try {
+      await axios.post("http://localhost:3002/cancelOrder", { id });
+
+      fetchOrders();
+    } catch (error) {
+      alert(error.response?.data?.message || "Unable to cancel order");
+    }
   };
 
   return (
     <div className="orders-container">
       <h3 className="title">Orders</h3>
 
-      {/* FILTER */}
       <div className="order-filters">
         {["ALL", "BUY", "SELL"].map((type) => (
           <button
@@ -55,7 +52,6 @@ const Orders = () => {
         ))}
       </div>
 
-      {/* TABLE */}
       <div className="order-table">
         <table>
           <thead>
@@ -71,8 +67,8 @@ const Orders = () => {
           </thead>
 
           <tbody>
-            {filteredOrders.map((order, index) => (
-              <tr key={index}>
+            {filteredOrders.map((order) => (
+              <tr key={order._id}>
                 <td>{order.name}</td>
 
                 <td className={order.mode === "BUY" ? "buy" : "sell"}>
@@ -80,7 +76,8 @@ const Orders = () => {
                 </td>
 
                 <td>{order.qty}</td>
-                <td>₹{order.price}</td>
+
+                <td>₹{Number(order.price).toFixed(2)}</td>
 
                 <td className={`status ${order.status?.toLowerCase()}`}>
                   {order.status || "PENDING"}
