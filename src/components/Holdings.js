@@ -1,20 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
+
+import api from "../api/axiosInstance";
 
 import GeneralContext from "./GeneralContext";
 import { VerticalGraph } from "./VerticalGraph";
 
 const Holdings = () => {
   const [allHoldings, setAllHoldings] = useState([]);
+
   const { refreshKey } = useContext(GeneralContext);
 
   const fetchHoldings = async () => {
     try {
       const [holdingsResponse, marketResponse, ordersResponse] =
         await Promise.all([
-          axios.get("http://localhost:3002/allHoldings"),
-          axios.get("http://localhost:3002/market-data"),
-          axios.get("http://localhost:3002/allOrders"),
+          api.get("/allHoldings"),
+          api.get("/market-data"),
+          api.get("/allOrders"),
         ]);
 
       const holdings = holdingsResponse.data;
@@ -37,9 +39,13 @@ const Holdings = () => {
 
         return {
           ...holding,
+
           ltp: marketStock ? marketStock.price : holding.price,
+
           day: marketStock ? marketStock.percent : holding.day,
+
           isDown: marketStock ? marketStock.isDown : false,
+
           realizedPnL,
         };
       });
@@ -73,10 +79,13 @@ const Holdings = () => {
 
   const data = {
     labels,
+
     datasets: [
       {
         label: "Current Market Price",
+
         data: allHoldings.map((stock) => stock.ltp),
+
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
     ],
@@ -171,6 +180,7 @@ const Holdings = () => {
               maximumFractionDigits: 2,
             })}
           </h5>
+
           <p>Total investment</p>
         </div>
 
@@ -182,6 +192,7 @@ const Holdings = () => {
               maximumFractionDigits: 2,
             })}
           </h5>
+
           <p>Current value</p>
         </div>
 

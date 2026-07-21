@@ -1,37 +1,57 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Menu from "./Menu";
 
 const TopBar = () => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  // Apply dark mode to body
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark");
-    } else {
-      document.body.classList.remove("dark");
-    }
-  }, [darkMode]);
+  const marketIndices = [
+    {
+      name: "NIFTY 50",
+      value: "25,090.70",
+      change: "+0.42%",
+      isPositive: true,
+    },
+    {
+      name: "SENSEX",
+      value: "81,796.15",
+      change: "+0.35%",
+      isPositive: true,
+    },
+  ];
 
   return (
     <div className="topbar-container">
-
-      {/* MARKET INDICES */}
       <div className="indices-container">
-        <div className="nifty">
-          <p className="index">NIFTY 50</p>
-          <p className="index-points">{100.2}</p>
-        </div>
+        {marketIndices.map((index) => (
+          <div className="nivesha-market-index" key={index.name}>
+            <div className="nivesha-index-heading">
+              <span className="nivesha-index-live-dot"></span>
+              <span>{index.name}</span>
+            </div>
 
-        <div className="sensex">
-          <p className="index">SENSEX</p>
-          <p className="index-points">{100.2}</p>
-        </div>
+            <div className="nivesha-index-data">
+              <strong>{index.value}</strong>
+
+              <span
+                className={
+                  index.isPositive
+                    ? "nivesha-index-positive"
+                    : "nivesha-index-negative"
+                }
+              >
+                <i
+                  className={`fa ${
+                    index.isPositive ? "fa-caret-up" : "fa-caret-down"
+                  }`}
+                  aria-hidden="true"
+                ></i>
+
+                {index.change}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* 🔥 PASS DARK MODE TO MENU */}
-      <Menu darkMode={darkMode} setDarkMode={setDarkMode} />
-
+      <Menu />
     </div>
   );
 };

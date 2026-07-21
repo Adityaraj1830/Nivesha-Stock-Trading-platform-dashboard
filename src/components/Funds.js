@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-
-import axios from "axios";
 import toast from "react-hot-toast";
 
+import api from "../api/axiosInstance";
 import GeneralContext from "./GeneralContext";
 
 const Funds = () => {
@@ -15,11 +14,9 @@ const Funds = () => {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-
   const [modalType, setModalType] = useState(null);
   const [amount, setAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-
   const [transactions, setTransactions] = useState([]);
   const [showTransactions, setShowTransactions] = useState(false);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
@@ -28,12 +25,12 @@ const Funds = () => {
     try {
       setIsLoading(true);
 
-      const response = await axios.get("http://localhost:3002/funds");
+      const response = await api.get("/funds");
 
       setFunds(response.data);
     } catch (error) {
       console.error("Failed to fetch funds:", error);
-      toast.error("Unable to load funds");
+      toast.error(error.response?.data?.message || "Unable to load funds");
     } finally {
       setIsLoading(false);
     }
@@ -109,12 +106,9 @@ const Funds = () => {
     try {
       setIsProcessing(true);
 
-      const endpoint =
-        modalType === "ADD"
-          ? "http://localhost:3002/addFunds"
-          : "http://localhost:3002/withdrawFunds";
+      const endpoint = modalType === "ADD" ? "/addFunds" : "/withdrawFunds";
 
-      const response = await axios.post(endpoint, {
+      const response = await api.post(endpoint, {
         amount: numericAmount,
       });
 
@@ -140,15 +134,15 @@ const Funds = () => {
       setShowTransactions(true);
       setTransactionsLoading(true);
 
-      const response = await axios.get(
-        "http://localhost:3002/fund-transactions",
-      );
+      const response = await api.get("/fund-transactions");
 
       setTransactions(response.data);
     } catch (error) {
       console.error("Failed to fetch transactions:", error);
 
-      toast.error("Unable to load transaction history");
+      toast.error(
+        error.response?.data?.message || "Unable to load transaction history",
+      );
     } finally {
       setTransactionsLoading(false);
     }
@@ -194,7 +188,6 @@ const Funds = () => {
         <div className="funds-page-header">
           <div>
             <h2>Funds</h2>
-
             <p>Manage your trading balance and account funds</p>
           </div>
 
@@ -305,7 +298,6 @@ const Funds = () => {
 
               <div>
                 <strong>Instant fund transfers</strong>
-
                 <p>Add funds securely to continue trading on Nivesha.</p>
               </div>
             </div>
@@ -331,8 +323,6 @@ const Funds = () => {
         </div>
       </div>
 
-      {/* Add / Withdraw Modal */}
-
       {modalType && (
         <div className="funds-modal-overlay" onMouseDown={closeFundsModal}>
           <div
@@ -357,7 +347,6 @@ const Funds = () => {
 
             <div className="funds-modal-balance">
               <span>Available balance</span>
-
               <strong>{formatCurrency(funds.availableBalance)}</strong>
             </div>
 
@@ -415,8 +404,6 @@ const Funds = () => {
         </div>
       )}
 
-      {/* Transaction History Modal */}
-
       {showTransactions && (
         <div
           className="funds-modal-overlay"
@@ -447,13 +434,11 @@ const Funds = () => {
             <div className="transaction-summary">
               <div>
                 <span>Current balance</span>
-
                 <strong>{formatCurrency(funds.availableBalance)}</strong>
               </div>
 
               <div>
                 <span>Total transactions</span>
-
                 <strong>{transactions.length}</strong>
               </div>
             </div>
@@ -462,7 +447,6 @@ const Funds = () => {
               {transactionsLoading ? (
                 <div className="transaction-empty">
                   <div className="transaction-loader" />
-
                   <p>Loading transaction history...</p>
                 </div>
               ) : transactions.length === 0 ? (
@@ -514,7 +498,6 @@ const Funds = () => {
                           {transaction.stockName && (
                             <>
                               <span className="transaction-dot">•</span>
-
                               <span>{transaction.stockName}</span>
                             </>
                           )}
@@ -522,7 +505,6 @@ const Funds = () => {
                           {transaction.quantity && (
                             <>
                               <span className="transaction-dot">•</span>
-
                               <span>Qty {transaction.quantity}</span>
                             </>
                           )}

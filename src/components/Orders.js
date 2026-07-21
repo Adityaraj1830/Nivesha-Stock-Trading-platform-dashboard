@@ -1,11 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
+
+import api from "../api/axiosInstance";
 
 import GeneralContext from "./GeneralContext";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
+
   const [filter, setFilter] = useState("ALL");
+
+  const [productFilter, setProductFilter] = useState("ALL");
+
   const [isLoading, setIsLoading] = useState(true);
 
   const { refreshKey } = useContext(GeneralContext);
@@ -14,7 +19,7 @@ const Orders = () => {
     try {
       setIsLoading(true);
 
-      const response = await axios.get("http://localhost:3002/allOrders");
+      const response = await api.get("/allOrders");
 
       const sortedOrders = [...response.data].sort(
         (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
@@ -32,30 +37,66 @@ const Orders = () => {
     fetchOrders();
   }, [refreshKey]);
 
-  const filteredOrders =
-    filter === "ALL" ? orders : orders.filter((order) => order.mode === filter);
+  const filteredOrders = orders.filter((order) => {
+    const matchesOrderType = filter === "ALL" || order.mode === filter;
+
+    const orderProduct = order.product || "CNC";
+
+    const matchesProduct =
+      productFilter === "ALL" || orderProduct === productFilter;
+
+    return matchesOrderType && matchesProduct;
+  });
 
   return (
     <div className="orders-container">
       <div className="orders-header">
         <div>
           <h3 className="title">Orders</h3>
-          <p className="orders-subtitle">View your recent trading activity</p>
+
+          <p className="orders-subtitle">
+            View and track your complete trading activity
+          </p>
         </div>
 
-        <span className="orders-count">{filteredOrders.length} orders</span>
+        <span className="orders-count">
+          {filteredOrders.length}{" "}
+          {filteredOrders.length === 1 ? "order" : "orders"}
+        </span>
       </div>
 
-      <div className="order-filters">
-        {["ALL", "BUY", "SELL"].map((type) => (
-          <button
-            key={type}
-            className={filter === type ? "active-filter" : ""}
-            onClick={() => setFilter(type)}
-          >
-            {type}
-          </button>
-        ))}
+      <div className="orders-filter-section">
+        <div className="orders-filter-group">
+          <span className="orders-filter-label">Order type</span>
+
+          <div className="order-filters">
+            {["ALL", "BUY", "SELL"].map((type) => (
+              <button
+                key={type}
+                className={filter === type ? "active-filter" : ""}
+                onClick={() => setFilter(type)}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="orders-filter-group">
+          <span className="orders-filter-label">Product</span>
+
+          <div className="order-filters product-filters">
+            {["ALL", "CNC", "MIS"].map((type) => (
+              <button
+                key={type}
+                className={productFilter === type ? "active-filter" : ""}
+                onClick={() => setProductFilter(type)}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="order-table">
@@ -64,6 +105,7 @@ const Orders = () => {
             <tr>
               <th>Instrument</th>
               <th>Type</th>
+              <th>Product</th>
               <th>Qty.</th>
               <th>Price</th>
               <th>Order Value</th>
@@ -79,6 +121,8 @@ const Orders = () => {
 
                 const status = order.status || "COMPLETED";
 
+                const product = order.product || "CNC";
+
                 return (
                   <tr key={order._id}>
                     <td className="order-instrument">{order.name}</td>
@@ -90,6 +134,18 @@ const Orders = () => {
                         }`}
                       >
                         {order.mode}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span
+                        className={`order-product ${
+                          product === "MIS"
+                            ? "order-product-mis"
+                            : "order-product-cnc"
+                        }`}
+                      >
+                        {product}
                       </span>
                     </td>
 
@@ -133,10 +189,11 @@ const Orders = () => {
         {!isLoading && filteredOrders.length === 0 && (
           <div className="orders-empty-state">
             <h4>No orders found</h4>
+
             <p>
-              {filter === "ALL"
+              {filter === "ALL" && productFilter === "ALL"
                 ? "Your trading activity will appear here."
-                : `You don't have any ${filter.toLowerCase()} orders yet.`}
+                : "No orders match the selected filters."}
             </p>
           </div>
         )}

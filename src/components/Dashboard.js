@@ -1,11 +1,11 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
-import PlatformsPage from "./PlatformsPage";
 import Funds from "./Funds";
 import Holdings from "./Holdings";
 import Orders from "./Orders";
 import Positions from "./Positions";
+import Profile from "./Profile";
 import Summary from "./Summary";
 import WatchList from "./WatchList";
 
@@ -15,7 +15,6 @@ const Dashboard = () => {
   return (
     <GeneralContextProvider>
       <div className="dashboard-container">
-
         <WatchList />
 
         <div className="content">
@@ -25,13 +24,9 @@ const Dashboard = () => {
             <Route path="/holdings" element={<Holdings />} />
             <Route path="/positions" element={<Positions />} />
             <Route path="/funds" element={<Funds />} />
-            <Route
-              path="/platforms"
-              element={<PlatformsPage />}
-            />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </div>
-
       </div>
     </GeneralContextProvider>
   );

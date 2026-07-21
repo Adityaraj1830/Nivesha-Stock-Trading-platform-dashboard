@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
+
+import api from "../api/axiosInstance";
 
 import GeneralContext from "./GeneralContext";
 import "./BuyActionWindow.css";
@@ -8,65 +8,78 @@ import "./BuyActionWindow.css";
 const SellActionWindow = ({ uid, marketPrice }) => {
   const [stockQuantity, setStockQuantity] = useState(1);
 
-  // Automatically use the current watchlist market price
-  const [stockPrice, setStockPrice] = useState(Number(marketPrice) || 0);
+  const [productType, setProductType] = useState("CNC");
+
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const generalContext = useContext(GeneralContext);
 
-  // ================= SELL ORDER =================
-
   const handleSellClick = async () => {
     const quantity = Number(stockQuantity);
-    const price = Number(stockPrice);
+
+    const price = Number(marketPrice);
 
     if (!Number.isInteger(quantity) || quantity <= 0) {
-      toast.error("Enter a valid quantity");
-      return;
-    }
+      alert("Please enter a valid quantity");
 
-    if (!Number.isFinite(price) || price <= 0) {
-      toast.error("Enter a valid price");
       return;
     }
 
     try {
-      const response = await axios.post("http://localhost:3002/newOrder", {
+      setIsPlacingOrder(true);
+
+      await api.post("/newOrder", {
         name: uid,
         qty: quantity,
         price,
         mode: "SELL",
+        product: productType,
       });
 
-      toast.success(response.data?.message || `${uid} sold successfully`);
-
-      // Refresh Orders and Holdings
       generalContext.refreshTradingData();
 
-      // Close Sell window
       generalContext.closeSellWindow();
     } catch (error) {
       console.error("SELL ERROR:", error);
 
-      toast.error(
-        error.response?.data?.message || "Failed to place sell order",
-      );
+      alert(error.response?.data?.message || "Failed to place sell order");
+    } finally {
+      setIsPlacingOrder(false);
     }
   };
-
-  // ================= CANCEL =================
 
   const handleCancelClick = () => {
     generalContext.closeSellWindow();
   };
-
-  const orderValue = Number(stockQuantity) * Number(stockPrice);
 
   return (
     <div className="container" id="sell-window">
       <div className="regular-order">
         <h3>Sell {uid}</h3>
 
-        <p>Market price: ₹{Number(marketPrice || 0).toFixed(2)}</p>
+        <div className="product-selector">
+          <button
+            type="button"
+            className={`product-option ${
+              productType === "CNC" ? "active" : ""
+            }`}
+            onClick={() => setProductType("CNC")}
+          >
+            <span>CNC</span>
+            <small>Delivery</small>
+          </button>
+
+          <button
+            type="button"
+            className={`product-option ${
+              productType === "MIS" ? "active" : ""
+            }`}
+            onClick={() => setProductType("MIS")}
+          >
+            <span>MIS</span>
+            <small>Intraday</small>
+          </button>
+        </div>
 
         <div className="inputs">
           <fieldset>
@@ -75,42 +88,38 @@ const SellActionWindow = ({ uid, marketPrice }) => {
             <input
               type="number"
               min="1"
-              step="1"
               value={stockQuantity}
               onChange={(e) => setStockQuantity(e.target.value)}
             />
           </fieldset>
 
           <fieldset>
-            <legend>Price</legend>
+            <legend>Market Price</legend>
 
-            <input
-              type="number"
-              min="0.01"
-              step="0.05"
-              value={stockPrice}
-              onChange={(e) => setStockPrice(e.target.value)}
-            />
+            <input type="number" value={marketPrice} readOnly />
           </fieldset>
         </div>
       </div>
 
       <div className="buttons">
-        <span>Order value ₹{(orderValue || 0).toFixed(2)}</span>
+        <span>
+          {productType} · Order value ₹
+          {(Number(stockQuantity) * Number(marketPrice) || 0).toFixed(2)}
+        </span>
 
         <div>
           <button
-            type="button"
-            className="btn btn-blue"
+            className="btn btn-red"
             onClick={handleSellClick}
+            disabled={isPlacingOrder}
           >
-            Sell
+            {isPlacingOrder ? "Placing..." : "Sell"}
           </button>
 
           <button
-            type="button"
             className="btn btn-grey"
             onClick={handleCancelClick}
+            disabled={isPlacingOrder}
           >
             Cancel
           </button>
