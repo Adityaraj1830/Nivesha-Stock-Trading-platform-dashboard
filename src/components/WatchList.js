@@ -9,7 +9,6 @@ import {
   BarChartOutlined,
   KeyboardArrowDown,
   KeyboardArrowUp,
-  MoreHoriz,
 } from "@mui/icons-material";
 
 import { DoughnutChart } from "./DoughnoutChart";
@@ -28,6 +27,7 @@ const watchlistSymbols = [
 
 const WatchList = () => {
   const [watchlist, setWatchlist] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchMarketData = async () => {
     try {
@@ -46,6 +46,10 @@ const WatchList = () => {
   useEffect(() => {
     fetchMarketData();
   }, []);
+
+  const searchedStocks = watchlist.filter((stock) =>
+    stock.name.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+  );
 
   const labels = watchlist.map((stock) => stock.name);
 
@@ -77,15 +81,23 @@ const WatchList = () => {
           id="search"
           placeholder="Search eg: INFY, TCS, WIPRO..."
           className="search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <span className="counts">{watchlist.length} / 50</span>
+        <span className="counts">
+          {searchedStocks.length} / {watchlist.length}
+        </span>
       </div>
 
       <ul className="list">
-        {watchlist.map((stock) => (
-          <WatchListItem stock={stock} key={stock.name} />
-        ))}
+        {searchedStocks.length > 0 ? (
+          searchedStocks.map((stock) => (
+            <WatchListItem stock={stock} key={stock.name} />
+          ))
+        ) : (
+          <li className="no-results">No stocks found</li>
+        )}
       </ul>
 
       <DoughnutChart data={data} />
@@ -119,22 +131,29 @@ const WatchListItem = ({ stock }) => {
         </div>
       </div>
 
-      {showWatchlistActions && (
-        <WatchListActions uid={stock.name} price={stock.price} />
-      )}
+      {showWatchlistActions && <WatchListActions stock={stock} />}
     </li>
   );
 };
 
-const WatchListActions = ({ uid, price }) => {
+const WatchListActions = ({ stock }) => {
   const generalContext = useContext(GeneralContext);
 
   const handleBuyClick = () => {
-    generalContext.openBuyWindow(uid, price);
+    generalContext.openBuyWindow(stock.name, stock.price);
   };
 
   const handleSellClick = () => {
-    generalContext.openSellWindow(uid, price);
+    generalContext.openSellWindow(stock.name, stock.price);
+  };
+
+  const handleAnalyticsClick = () => {
+    generalContext.openAnalyticsWindow(
+      stock.name,
+      stock.price,
+      stock.percent,
+      stock.isDown,
+    );
   };
 
   return (
@@ -168,14 +187,8 @@ const WatchListActions = ({ uid, price }) => {
           arrow
           TransitionComponent={Grow}
         >
-          <button className="action">
+          <button className="action" onClick={handleAnalyticsClick}>
             <BarChartOutlined className="icon" />
-          </button>
-        </Tooltip>
-
-        <Tooltip title="More" placement="top" arrow TransitionComponent={Grow}>
-          <button className="action">
-            <MoreHoriz className="icon" />
           </button>
         </Tooltip>
       </span>

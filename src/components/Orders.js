@@ -6,16 +6,25 @@ import GeneralContext from "./GeneralContext";
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("ALL");
+  const [isLoading, setIsLoading] = useState(true);
 
   const { refreshKey } = useContext(GeneralContext);
 
   const fetchOrders = async () => {
     try {
+      setIsLoading(true);
+
       const response = await axios.get("http://localhost:3002/allOrders");
 
-      setOrders(response.data);
+      const sortedOrders = [...response.data].sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+      );
+
+      setOrders(sortedOrders);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -26,19 +35,16 @@ const Orders = () => {
   const filteredOrders =
     filter === "ALL" ? orders : orders.filter((order) => order.mode === filter);
 
-  const handleCancel = async (id) => {
-    try {
-      await axios.post("http://localhost:3002/cancelOrder", { id });
-
-      fetchOrders();
-    } catch (error) {
-      alert(error.response?.data?.message || "Unable to cancel order");
-    }
-  };
-
   return (
     <div className="orders-container">
-      <h3 className="title">Orders</h3>
+      <div className="orders-header">
+        <div>
+          <h3 className="title">Orders</h3>
+          <p className="orders-subtitle">View your recent trading activity</p>
+        </div>
+
+        <span className="orders-count">{filteredOrders.length} orders</span>
+      </div>
 
       <div className="order-filters">
         {["ALL", "BUY", "SELL"].map((type) => (
@@ -56,49 +62,84 @@ const Orders = () => {
         <table>
           <thead>
             <tr>
-              <th>Stock</th>
+              <th>Instrument</th>
               <th>Type</th>
-              <th>Qty</th>
+              <th>Qty.</th>
               <th>Price</th>
+              <th>Order Value</th>
               <th>Status</th>
               <th>Time</th>
-              <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredOrders.map((order) => (
-              <tr key={order._id}>
-                <td>{order.name}</td>
+            {!isLoading &&
+              filteredOrders.map((order) => {
+                const orderValue = Number(order.price) * Number(order.qty);
 
-                <td className={order.mode === "BUY" ? "buy" : "sell"}>
-                  {order.mode}
-                </td>
+                const status = order.status || "COMPLETED";
 
-                <td>{order.qty}</td>
+                return (
+                  <tr key={order._id}>
+                    <td className="order-instrument">{order.name}</td>
 
-                <td>₹{Number(order.price).toFixed(2)}</td>
+                    <td>
+                      <span
+                        className={`order-type ${
+                          order.mode === "BUY" ? "order-buy" : "order-sell"
+                        }`}
+                      >
+                        {order.mode}
+                      </span>
+                    </td>
 
-                <td className={`status ${order.status?.toLowerCase()}`}>
-                  {order.status || "PENDING"}
-                </td>
+                    <td>{order.qty}</td>
 
-                <td>{order.time || "—"}</td>
+                    <td>
+                      ₹
+                      {Number(order.price).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
 
-                <td>
-                  {(order.status === "PENDING" || !order.status) && (
-                    <button
-                      className="cancel-btn"
-                      onClick={() => handleCancel(order._id)}
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
+                    <td>
+                      ₹
+                      {orderValue.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+
+                    <td>
+                      <span className={`order-status ${status.toLowerCase()}`}>
+                        {status}
+                      </span>
+                    </td>
+
+                    <td>{order.time || "—"}</td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
+
+        {isLoading && (
+          <div className="orders-empty-state">
+            <p>Loading your orders...</p>
+          </div>
+        )}
+
+        {!isLoading && filteredOrders.length === 0 && (
+          <div className="orders-empty-state">
+            <h4>No orders found</h4>
+            <p>
+              {filter === "ALL"
+                ? "Your trading activity will appear here."
+                : `You don't have any ${filter.toLowerCase()} orders yet.`}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

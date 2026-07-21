@@ -2,12 +2,15 @@ import React, { useState } from "react";
 
 import BuyActionWindow from "./BuyActionWindow";
 import SellActionWindow from "./SellActionWindow";
+import StockAnalyticsWindow from "./StockAnalyticsWindow";
 
 const GeneralContext = React.createContext({
   openBuyWindow: () => {},
   closeBuyWindow: () => {},
   openSellWindow: () => {},
   closeSellWindow: () => {},
+  openAnalyticsWindow: () => {},
+  closeAnalyticsWindow: () => {},
 
   refreshKey: 0,
   refreshTradingData: () => {},
@@ -15,61 +18,68 @@ const GeneralContext = React.createContext({
 
 export const GeneralContextProvider = ({ children }) => {
   const [isBuyWindowOpen, setIsBuyWindowOpen] = useState(false);
-
   const [isSellWindowOpen, setIsSellWindowOpen] = useState(false);
+  const [isAnalyticsWindowOpen, setIsAnalyticsWindowOpen] = useState(false);
 
-  // Selected stock information
   const [selectedStock, setSelectedStock] = useState({
     uid: "",
     price: 0,
+    percent: "0.00%",
+    isDown: false,
   });
 
-  // Used to refresh trading-related data
   const [refreshKey, setRefreshKey] = useState(0);
-
-  // ================= BUY WINDOW =================
 
   const handleOpenBuyWindow = (uid, price) => {
     setSelectedStock({
       uid,
       price: Number(price),
+      percent: "0.00%",
+      isDown: false,
     });
 
     setIsSellWindowOpen(false);
+    setIsAnalyticsWindowOpen(false);
     setIsBuyWindowOpen(true);
   };
 
   const handleCloseBuyWindow = () => {
     setIsBuyWindowOpen(false);
-
-    setSelectedStock({
-      uid: "",
-      price: 0,
-    });
   };
-
-  // ================= SELL WINDOW =================
 
   const handleOpenSellWindow = (uid, price) => {
     setSelectedStock({
       uid,
       price: Number(price),
+      percent: "0.00%",
+      isDown: false,
     });
 
     setIsBuyWindowOpen(false);
+    setIsAnalyticsWindowOpen(false);
     setIsSellWindowOpen(true);
   };
 
   const handleCloseSellWindow = () => {
     setIsSellWindowOpen(false);
-
-    setSelectedStock({
-      uid: "",
-      price: 0,
-    });
   };
 
-  // ================= DATA REFRESH =================
+  const handleOpenAnalyticsWindow = (uid, price, percent, isDown) => {
+    setSelectedStock({
+      uid,
+      price: Number(price),
+      percent,
+      isDown,
+    });
+
+    setIsBuyWindowOpen(false);
+    setIsSellWindowOpen(false);
+    setIsAnalyticsWindowOpen(true);
+  };
+
+  const handleCloseAnalyticsWindow = () => {
+    setIsAnalyticsWindowOpen(false);
+  };
 
   const refreshTradingData = () => {
     setRefreshKey((previousKey) => previousKey + 1);
@@ -83,6 +93,9 @@ export const GeneralContextProvider = ({ children }) => {
 
         openSellWindow: handleOpenSellWindow,
         closeSellWindow: handleCloseSellWindow,
+
+        openAnalyticsWindow: handleOpenAnalyticsWindow,
+        closeAnalyticsWindow: handleCloseAnalyticsWindow,
 
         refreshKey,
         refreshTradingData,
@@ -103,6 +116,8 @@ export const GeneralContextProvider = ({ children }) => {
           marketPrice={selectedStock.price}
         />
       )}
+
+      {isAnalyticsWindowOpen && <StockAnalyticsWindow stock={selectedStock} />}
     </GeneralContext.Provider>
   );
 };
