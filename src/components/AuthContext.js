@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setUser(null);
 
-      window.location.replace("http://localhost:3001/signup");
+      window.location.replace("http://localhost:3001/login");
     }
   };
 
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      window.location.replace("http://localhost:3001/signup");
+      window.location.replace("http://localhost:3001/login");
     }
   }, [authLoading, user]);
 

@@ -7,11 +7,14 @@ import { VerticalGraph } from "./VerticalGraph";
 
 const Holdings = () => {
   const [allHoldings, setAllHoldings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { refreshKey } = useContext(GeneralContext);
 
   const fetchHoldings = async () => {
     try {
+      setIsLoading(true);
+
       const [holdingsResponse, marketResponse, ordersResponse] =
         await Promise.all([
           api.get("/allHoldings"),
@@ -39,13 +42,9 @@ const Holdings = () => {
 
         return {
           ...holding,
-
           ltp: marketStock ? marketStock.price : holding.price,
-
           day: marketStock ? marketStock.percent : holding.day,
-
           isDown: marketStock ? marketStock.isDown : false,
-
           realizedPnL,
         };
       });
@@ -53,6 +52,8 @@ const Holdings = () => {
       setAllHoldings(updatedHoldings);
     } catch (error) {
       console.error("Failed to fetch holdings:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -79,17 +80,61 @@ const Holdings = () => {
 
   const data = {
     labels,
-
     datasets: [
       {
         label: "Current Market Price",
-
         data: allHoldings.map((stock) => stock.ltp),
-
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
     ],
   };
+
+  if (isLoading) {
+    return (
+      <>
+        <h3 className="title">
+          <i
+            className="fa fa-briefcase section-icon holdings-icon"
+            aria-hidden="true"
+          ></i>
+          Holdings
+        </h3>
+
+        <div className="portfolio-empty-state">
+          <p>Loading your holdings...</p>
+        </div>
+      </>
+    );
+  }
+
+  if (allHoldings.length === 0) {
+    return (
+      <>
+        <h3 className="title">
+          <i
+            className="fa fa-briefcase section-icon holdings-icon"
+            aria-hidden="true"
+          ></i>
+          Holdings (0)
+        </h3>
+
+        <div className="portfolio-empty-state">
+          <div className="portfolio-empty-icon">
+            <i className="fa fa-briefcase" aria-hidden="true"></i>
+          </div>
+
+          <h3>No holdings yet</h3>
+
+          <p>
+            Buy stocks using CNC from your watchlist to start building your
+            long-term portfolio.
+          </p>
+
+          <span>Your purchased CNC stocks will appear here.</span>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

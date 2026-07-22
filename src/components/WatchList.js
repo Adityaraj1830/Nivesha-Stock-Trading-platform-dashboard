@@ -74,12 +74,28 @@ const WatchList = () => {
 
   return (
     <div className="watchlist-container">
+      <div className="watchlist-header">
+        <div>
+          <span className="watchlist-eyebrow">MARKET</span>
+          <h2>My Watchlist</h2>
+        </div>
+
+        <div className="watchlist-stock-count">
+          <span>{watchlist.length}</span>
+          <small>Stocks</small>
+        </div>
+      </div>
+
       <div className="search-container">
+        <div className="watchlist-search-icon">
+          <i className="fa fa-search" aria-hidden="true"></i>
+        </div>
+
         <input
           type="text"
           name="search"
           id="search"
-          placeholder="Search eg: INFY, TCS, WIPRO..."
+          placeholder="Search stocks..."
           className="search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -90,13 +106,29 @@ const WatchList = () => {
         </span>
       </div>
 
+      <div className="watchlist-column-header">
+        <span>Instrument</span>
+
+        <div>
+          <span>Change</span>
+          <span>LTP</span>
+        </div>
+      </div>
+
       <ul className="list">
         {searchedStocks.length > 0 ? (
           searchedStocks.map((stock) => (
             <WatchListItem stock={stock} key={stock.name} />
           ))
         ) : (
-          <li className="no-results">No stocks found</li>
+          <li className="no-results">
+            <div className="no-results-icon">
+              <i className="fa fa-search" aria-hidden="true"></i>
+            </div>
+
+            <strong>No stocks found</strong>
+            <span>Try searching with another stock symbol.</span>
+          </li>
         )}
       </ul>
 
@@ -112,20 +144,40 @@ const WatchListItem = ({ stock }) => {
 
   return (
     <li
+      className="watchlist-stock-row"
       onMouseEnter={() => setShowWatchlistActions(true)}
       onMouseLeave={() => setShowWatchlistActions(false)}
     >
       <div className="item">
-        <p className={stock.isDown ? "down" : "up"}>{stock.name}</p>
+        <div className="watchlist-stock-identity">
+          <div
+            className={`watchlist-stock-avatar ${
+              stock.isDown ? "stock-down" : "stock-up"
+            }`}
+          >
+            {stock.name.charAt(0)}
+          </div>
 
-        <div className="itemInfo">
-          <span className="percent">{stock.percent}</span>
+          <div className="watchlist-stock-name">
+            <p className={stock.isDown ? "down" : "up"}>{stock.name}</p>
+            <span>NSE · Equity</span>
+          </div>
+        </div>
 
-          {stock.isDown ? (
-            <KeyboardArrowDown className="down" />
-          ) : (
-            <KeyboardArrowUp className="up" />
-          )}
+        <div className="item-info">
+          <div
+            className={`watchlist-change ${
+              stock.isDown ? "stock-down" : "stock-up"
+            }`}
+          >
+            {stock.isDown ? (
+              <KeyboardArrowDown className="watchlist-trend-icon" />
+            ) : (
+              <KeyboardArrowUp className="watchlist-trend-icon" />
+            )}
+
+            <span className="percent">{stock.percent}</span>
+          </div>
 
           <span className="price">₹{Number(stock.price).toFixed(2)}</span>
         </div>
@@ -187,7 +239,11 @@ const WatchListActions = ({ stock }) => {
           arrow
           TransitionComponent={Grow}
         >
-          <button className="action" onClick={handleAnalyticsClick}>
+          <button
+            className="action"
+            onClick={handleAnalyticsClick}
+            aria-label={`View ${stock.name} analytics`}
+          >
             <BarChartOutlined className="icon" />
           </button>
         </Tooltip>

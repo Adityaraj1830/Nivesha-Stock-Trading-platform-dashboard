@@ -11,7 +11,8 @@ const Profile = () => {
   if (authLoading) {
     return (
       <div className="nivesha-profile-page">
-        <div className="nivesha-profile-footer-note">
+        <div className="nivesha-profile-loading">
+          <div className="nivesha-profile-loading-spinner"></div>
           <p>Loading your profile...</p>
         </div>
       </div>
@@ -42,13 +43,13 @@ const Profile = () => {
     <div className="nivesha-profile-page">
       <div className="nivesha-profile-page-header">
         <div>
-          <span className="nivesha-profile-page-eyebrow">ACCOUNT</span>
+          <span className="nivesha-profile-page-eyebrow">
+            ACCOUNT & PROFILE
+          </span>
 
-          <h1>My Profile</h1>
+          <h1>Your Nivesha Profile</h1>
 
-          <p>
-            View your personal information and Nivesha trading account details.
-          </p>
+          <p>Manage your identity and view your trading account information.</p>
         </div>
 
         <button
@@ -61,30 +62,109 @@ const Profile = () => {
         </button>
       </div>
 
-      <div className="nivesha-profile-overview-card">
-        <div className="nivesha-profile-cover"></div>
+      <div className="nivesha-profile-hero">
+        <div className="nivesha-profile-hero-pattern"></div>
 
-        <div className="nivesha-profile-overview-content">
-          <div className="nivesha-profile-main-avatar">{getInitials()}</div>
+        <div className="nivesha-profile-hero-content">
+          <div className="nivesha-profile-identity">
+            <div className="nivesha-profile-avatar-wrapper">
+              <div className="nivesha-profile-main-avatar">{getInitials()}</div>
 
-          <div className="nivesha-profile-main-info">
-            <h2>{user.name}</h2>
-
-            <p>{userId}</p>
-
-            <div className="nivesha-profile-badges">
-              <span className="nivesha-account-badge">
-                <i className="fa fa-user" aria-hidden="true"></i>
-
-                {user.accountType}
-              </span>
-
-              <span className="nivesha-active-badge">
-                <span></span>
-
-                {user.tradingStatus}
-              </span>
+              <span className="nivesha-profile-online-indicator"></span>
             </div>
+
+            <div className="nivesha-profile-main-info">
+              <div className="nivesha-profile-name-row">
+                <h2>{user.name}</h2>
+
+                <span className="nivesha-profile-verified-badge">
+                  <i className="fa fa-check" aria-hidden="true"></i>
+                </span>
+              </div>
+
+              <p>@{user.username}</p>
+
+              <div className="nivesha-profile-badges">
+                <span className="nivesha-account-badge">
+                  <i className="fa fa-user" aria-hidden="true"></i>
+                  {user.accountType}
+                </span>
+
+                <span className="nivesha-active-badge">
+                  <span></span>
+                  {user.tradingStatus}
+                </span>
+
+                <span className="nivesha-profile-id-badge">
+                  <i className="fa fa-id-card" aria-hidden="true"></i>
+                  {userId}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="nivesha-profile-hero-meta">
+            <div>
+              <span>ACCOUNT ID</span>
+              <strong>{userId}</strong>
+            </div>
+
+            <div className="nivesha-profile-hero-meta-divider"></div>
+
+            <div>
+              <span>ACCOUNT STATUS</span>
+
+              <strong className="nivesha-profile-status-value">
+                <span></span>
+                {user.tradingStatus}
+              </strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="nivesha-profile-quick-stats">
+        <div className="nivesha-profile-quick-stat">
+          <div className="nivesha-profile-quick-icon identity">
+            <i className="fa fa-check-circle" aria-hidden="true"></i>
+          </div>
+
+          <div>
+            <span>Identity</span>
+            <strong>Verified account</strong>
+          </div>
+        </div>
+
+        <div className="nivesha-profile-quick-stat">
+          <div className="nivesha-profile-quick-icon delivery">
+            <i className="fa fa-briefcase" aria-hidden="true"></i>
+          </div>
+
+          <div>
+            <span>Delivery trading</span>
+            <strong>CNC enabled</strong>
+          </div>
+        </div>
+
+        <div className="nivesha-profile-quick-stat">
+          <div className="nivesha-profile-quick-icon intraday">
+            <i className="fa fa-line-chart" aria-hidden="true"></i>
+          </div>
+
+          <div>
+            <span>Intraday trading</span>
+            <strong>MIS enabled</strong>
+          </div>
+        </div>
+
+        <div className="nivesha-profile-quick-stat">
+          <div className="nivesha-profile-quick-icon security">
+            <i className="fa fa-shield" aria-hidden="true"></i>
+          </div>
+
+          <div>
+            <span>Session</span>
+            <strong>Secure & active</strong>
           </div>
         </div>
       </div>
@@ -93,9 +173,10 @@ const Profile = () => {
         <div className="nivesha-profile-details-card">
           <div className="nivesha-profile-card-heading">
             <div>
-              <span>PERSONAL DETAILS</span>
+              <span>PERSONAL INFORMATION</span>
+              <h2>Your account details</h2>
 
-              <h2>Account information</h2>
+              <p>Personal information associated with your Nivesha account.</p>
             </div>
 
             <div className="nivesha-profile-heading-icon">
@@ -117,35 +198,34 @@ const Profile = () => {
 
             <div className="nivesha-profile-detail-item">
               <div className="nivesha-profile-detail-icon">
+                <i className="fa fa-at" aria-hidden="true"></i>
+              </div>
+
+              <div>
+                <span>Username</span>
+                <strong>@{user.username}</strong>
+              </div>
+            </div>
+
+            <div className="nivesha-profile-detail-item nivesha-profile-email-item">
+              <div className="nivesha-profile-detail-icon">
+                <i className="fa fa-envelope" aria-hidden="true"></i>
+              </div>
+
+              <div>
+                <span>Email address</span>
+                <strong>{user.email}</strong>
+              </div>
+            </div>
+
+            <div className="nivesha-profile-detail-item">
+              <div className="nivesha-profile-detail-icon">
                 <i className="fa fa-id-card" aria-hidden="true"></i>
               </div>
 
               <div>
-                <span>User ID</span>
+                <span>Nivesha account ID</span>
                 <strong>{userId}</strong>
-              </div>
-            </div>
-
-            <div className="nivesha-profile-detail-item">
-              <div className="nivesha-profile-detail-icon">
-                <i className="fa fa-phone" aria-hidden="true"></i>
-              </div>
-
-              <div>
-                <span>Phone number</span>
-
-                <strong>{user.phoneNumber}</strong>
-              </div>
-            </div>
-
-            <div className="nivesha-profile-detail-item">
-              <div className="nivesha-profile-detail-icon">
-                <i className="fa fa-check-circle" aria-hidden="true"></i>
-              </div>
-
-              <div>
-                <span>Verification</span>
-                <strong>Phone verified</strong>
               </div>
             </div>
           </div>
@@ -155,8 +235,9 @@ const Profile = () => {
           <div className="nivesha-profile-card-heading">
             <div>
               <span>TRADING ACCOUNT</span>
+              <h2>Account capabilities</h2>
 
-              <h2>Account overview</h2>
+              <p>Your active trading products and account status.</p>
             </div>
 
             <div className="nivesha-profile-heading-icon">
@@ -166,13 +247,21 @@ const Profile = () => {
 
           <div className="nivesha-profile-account-stats">
             <div>
-              <span>Account type</span>
+              <div className="nivesha-profile-account-stat-top">
+                <span>Account type</span>
+
+                <i className="fa fa-user" aria-hidden="true"></i>
+              </div>
 
               <strong>{user.accountType}</strong>
             </div>
 
             <div>
-              <span>Account status</span>
+              <div className="nivesha-profile-account-stat-top">
+                <span>Account status</span>
+
+                <i className="fa fa-check-circle" aria-hidden="true"></i>
+              </div>
 
               <strong className="nivesha-profile-active-text">
                 {user.tradingStatus}
@@ -180,12 +269,22 @@ const Profile = () => {
             </div>
 
             <div>
-              <span>Delivery trading</span>
+              <div className="nivesha-profile-account-stat-top">
+                <span>Delivery</span>
+
+                <i className="fa fa-briefcase" aria-hidden="true"></i>
+              </div>
+
               <strong>CNC enabled</strong>
             </div>
 
             <div>
-              <span>Intraday trading</span>
+              <div className="nivesha-profile-account-stat-top">
+                <span>Intraday</span>
+
+                <i className="fa fa-bolt" aria-hidden="true"></i>
+              </div>
+
               <strong>MIS enabled</strong>
             </div>
           </div>
@@ -196,35 +295,59 @@ const Profile = () => {
             </div>
 
             <div>
-              <strong>Account authenticated</strong>
+              <div className="nivesha-profile-security-heading">
+                <strong>Secure account session</strong>
+
+                <span>
+                  <span></span>
+                  Protected
+                </span>
+              </div>
 
               <p>
-                Your phone number has been verified and your Nivesha session is
-                active.
+                Your account is authenticated and your active trading session is
+                protected.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="nivesha-profile-footer-note">
-        <i className="fa fa-shield" aria-hidden="true"></i>
+      <div className="nivesha-profile-account-security">
+        <div className="nivesha-profile-account-security-content">
+          <div className="nivesha-profile-account-security-icon">
+            <i className="fa fa-lock" aria-hidden="true"></i>
+          </div>
 
-        <p>You are securely signed in to your Nivesha account.</p>
+          <div>
+            <span>ACCOUNT SECURITY</span>
+            <h3>Your account session is protected</h3>
 
-        <button
-          type="button"
-          onClick={logout}
-          style={{
-            marginLeft: "auto",
-            border: "none",
-            background: "transparent",
-            cursor: "pointer",
-            fontWeight: "600",
-          }}
-        >
-          Logout
-        </button>
+            <p>
+              Always sign out when using Nivesha on a shared or public device.
+            </p>
+          </div>
+        </div>
+
+        <div className="nivesha-profile-security-actions">
+          <div className="nivesha-profile-session-status">
+            <span></span>
+
+            <div>
+              <small>Current session</small>
+              <strong>Active now</strong>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="nivesha-profile-logout-button"
+            onClick={logout}
+          >
+            <i className="fa fa-sign-out" aria-hidden="true"></i>
+            Logout securely
+          </button>
+        </div>
       </div>
     </div>
   );

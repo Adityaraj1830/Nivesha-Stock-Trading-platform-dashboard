@@ -10,6 +10,7 @@ const Summary = () => {
   });
 
   const [holdings, setHoldings] = useState([]);
+  const [positions, setPositions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -17,12 +18,17 @@ const Summary = () => {
       try {
         setIsLoading(true);
 
-        const [fundsResponse, holdingsResponse, marketResponse] =
-          await Promise.all([
-            api.get("/funds"),
-            api.get("/allHoldings"),
-            api.get("/market-data"),
-          ]);
+        const [
+          fundsResponse,
+          holdingsResponse,
+          positionsResponse,
+          marketResponse,
+        ] = await Promise.all([
+          api.get("/funds"),
+          api.get("/allHoldings"),
+          api.get("/allPositions"),
+          api.get("/market-data"),
+        ]);
 
         const marketData = marketResponse.data;
 
@@ -54,8 +60,37 @@ const Summary = () => {
           };
         });
 
+        const updatedPositions = positionsResponse.data.map((position) => {
+          const marketStock = marketData.find(
+            (stock) => stock.name === position.name,
+          );
+
+          const ltp = marketStock
+            ? Number(marketStock.price)
+            : Number(position.price);
+
+          const quantity = Number(position.qty);
+          const averagePrice = Number(position.avg);
+
+          const investment = averagePrice * quantity;
+          const currentValue = ltp * quantity;
+          const pnl = currentValue - investment;
+
+          const pnlPercentage = investment > 0 ? (pnl / investment) * 100 : 0;
+
+          return {
+            ...position,
+            ltp,
+            investment,
+            currentValue,
+            pnl,
+            pnlPercentage,
+          };
+        });
+
         setFunds(fundsResponse.data);
         setHoldings(updatedHoldings);
+        setPositions(updatedPositions);
       } catch (error) {
         console.error("Failed to fetch summary data:", error);
       } finally {
@@ -90,6 +125,26 @@ const Summary = () => {
 
   const cashPercentage =
     totalAccountValue > 0 ? (availableBalance / totalAccountValue) * 100 : 0;
+
+  const totalPositionInvestment = positions.reduce(
+    (total, position) => total + Number(position.investment || 0),
+    0,
+  );
+
+  const totalPositionValue = positions.reduce(
+    (total, position) => total + Number(position.currentValue || 0),
+    0,
+  );
+
+  const totalPositionPnL = positions.reduce(
+    (total, position) => total + Number(position.pnl || 0),
+    0,
+  );
+
+  const totalPositionReturn =
+    totalPositionInvestment > 0
+      ? (totalPositionPnL / totalPositionInvestment) * 100
+      : 0;
 
   const sortedByPerformance = [...holdings].sort(
     (a, b) => b.pnlPercentage - a.pnlPercentage,
@@ -411,6 +466,69 @@ const Summary = () => {
         </div>
       </div>
 
+      <div className="nivesha-intraday-overview">
+        <div className="nivesha-intraday-heading">
+          <div>
+            <span>INTRADAY</span>
+            <h2>Active MIS positions</h2>
+            <p>A quick overview of your currently open intraday trades.</p>
+          </div>
+
+          <div className="nivesha-mis-badge">
+            MIS
+            <small>Intraday</small>
+          </div>
+        </div>
+
+        {positions.length > 0 ? (
+          <div className="nivesha-intraday-stats">
+            <div>
+              <span>Open positions</span>
+              <strong>{positions.length}</strong>
+              <small>Active MIS trades</small>
+            </div>
+
+            <div>
+              <span>Capital deployed</span>
+              <strong>{formatCurrency(totalPositionInvestment)}</strong>
+              <small>Original position value</small>
+            </div>
+
+            <div>
+              <span>Current value</span>
+              <strong>{formatCurrency(totalPositionValue)}</strong>
+              <small>At current market prices</small>
+            </div>
+
+            <div>
+              <span>Unrealized P&L</span>
+              <strong className={getPerformanceClass(totalPositionPnL)}>
+                {totalPositionPnL >= 0 ? "+" : ""}
+                {formatCurrency(totalPositionPnL)}
+              </strong>
+
+              <small className={getPerformanceClass(totalPositionPnL)}>
+                {formatPercentage(totalPositionReturn)} return
+              </small>
+            </div>
+          </div>
+        ) : (
+          <div className="nivesha-intraday-empty">
+            <div className="nivesha-empty-position-icon">
+              <i className="fa fa-bolt" aria-hidden="true"></i>
+            </div>
+
+            <div>
+              <h3>No active MIS positions</h3>
+              <p>
+                Your open intraday trades will appear here when you buy a stock
+                using MIS.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="nivesha-market-insights-grid">
         <div className="nivesha-performer-card best">
           <div className="nivesha-performer-top">
@@ -580,8 +698,8 @@ const Summary = () => {
           </div>
 
           <div>
-            <span>Capital deployed</span>
-            <strong>{investedPercentage.toFixed(1)}%</strong>
+            <span>Active MIS positions</span>
+            <strong>{positions.length}</strong>
           </div>
         </div>
 
