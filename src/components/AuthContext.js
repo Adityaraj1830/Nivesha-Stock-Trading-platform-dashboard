@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import config from "../config/config";
 
 const AuthContext = createContext(null);
 
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthLoading(true);
 
-      const response = await fetch("http://localhost:3002/auth/me", {
+      const response = await fetch(`${config.API_URL}/auth/me`, {
         method: "GET",
         credentials: "include",
       });
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch("http://localhost:3002/auth/logout", {
+      await fetch(`${config.API_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -41,8 +42,7 @@ export const AuthProvider = ({ children }) => {
       console.error("LOGOUT ERROR:", error);
     } finally {
       setUser(null);
-
-      window.location.replace("http://localhost:3001/login");
+      window.location.replace(`${config.FRONTEND_URL}/login`);
     }
   };
 
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      window.location.replace("http://localhost:3001/login");
+      window.location.replace(`${config.FRONTEND_URL}/login`);
     }
   }, [authLoading, user]);
 

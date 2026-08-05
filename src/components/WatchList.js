@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
+import config from "../config/config";
 
 import GeneralContext from "./GeneralContext";
 
@@ -31,7 +32,9 @@ const WatchList = () => {
 
   const fetchMarketData = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/market-data");
+      const response = await axios.get(`${config.API_URL}/market-data`, {
+  withCredentials: true,
+});
 
       const filteredWatchlist = response.data.filter((stock) =>
         watchlistSymbols.includes(stock.name),
