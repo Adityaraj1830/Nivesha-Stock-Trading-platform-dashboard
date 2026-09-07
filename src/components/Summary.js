@@ -98,8 +98,14 @@ const Summary = () => {
       }
     };
 
+  fetchSummaryData();
+
+  const intervalId = setInterval(() => {
     fetchSummaryData();
-  }, [refreshKey]);
+  }, 60 * 1000);
+
+  return () => clearInterval(intervalId);
+}, [refreshKey]);
 
   const totalInvestment = holdings.reduce(
     (total, stock) => total + Number(stock.investment || 0),

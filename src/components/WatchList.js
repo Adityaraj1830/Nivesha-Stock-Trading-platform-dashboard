@@ -47,8 +47,14 @@ const WatchList = () => {
   };
 
   useEffect(() => {
+  fetchMarketData();
+
+  const intervalId = setInterval(() => {
     fetchMarketData();
-  }, []);
+  }, 60 * 1000);
+
+  return () => clearInterval(intervalId);
+}, []);
 
   const searchedStocks = watchlist.filter((stock) =>
     stock.name.toLowerCase().includes(searchTerm.trim().toLowerCase()),

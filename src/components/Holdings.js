@@ -58,8 +58,14 @@ const Holdings = () => {
   };
 
   useEffect(() => {
+  fetchHoldings();
+
+  const intervalId = setInterval(() => {
     fetchHoldings();
-  }, [refreshKey]);
+  }, 60 * 1000);
+
+  return () => clearInterval(intervalId);
+}, [refreshKey]);
 
   const totalInvestment = allHoldings.reduce((total, stock) => {
     return total + Number(stock.avg) * Number(stock.qty);
