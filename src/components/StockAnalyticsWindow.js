@@ -62,7 +62,7 @@ const StockAnalyticsWindow = ({ stock }) => {
 
         <div className="analytics-divider"></div>
 
-        <StockPriceChart price={price} isDown={isDown} />
+        <StockPriceChart symbol={stock.uid} price={price} isDown={isDown} />
 
         <div className="analytics-divider"></div>
 
@@ -97,7 +97,7 @@ const StockAnalyticsWindow = ({ stock }) => {
 
           <div>
             <strong>Market data</strong>
-            <span>Latest simulated market price</span>
+            <span>Latest available NSE market data</span>
           </div>
         </div>
 

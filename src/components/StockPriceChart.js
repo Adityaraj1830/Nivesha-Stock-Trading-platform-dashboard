@@ -1,4 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import axios from "axios";
+
+import config from "../config/config";
 
 import {
   Chart as ChartJS,
@@ -21,32 +25,102 @@ ChartJS.register(
   Filler,
 );
 
-const StockPriceChart = ({ price, isDown }) => {
-  const currentPrice = Number(price);
+const StockPriceChart = ({ symbol, price, isDown }) => {
+  const [history, setHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const labels = ["9:15", "10:00", "11:00", "12:00", "1:00", "2:00", "3:30"];
+  useEffect(() => {
+    const fetchStockHistory = async () => {
+      try {
+        setIsLoading(true);
 
-  const movement = isDown
-    ? [1.012, 1.008, 1.01, 1.003, 1.005, 0.998, 1]
-    : [0.988, 0.992, 0.99, 0.997, 0.995, 1.002, 1];
+        const response = await axios.get(
+          `${config.API_URL}/market/history/${encodeURIComponent(symbol)}`,
+          {
+            withCredentials: true,
+          },
+        );
 
-  const prices = movement.map((value) =>
-    Number((currentPrice * value).toFixed(2)),
+        if (response.data.success) {
+          setHistory(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch historical market data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (symbol) {
+      fetchStockHistory();
+    }
+  }, [symbol]);
+
+  if (isLoading) {
+    return (
+      <div className="stock-chart-section">
+        <div className="stock-chart-header">
+          <div>
+            <h4>Stock Price Performance</h4>
+            <span>Loading historical market data...</span>
+          </div>
+
+          <span className="chart-timeframe">1W</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (history.length === 0) {
+    return (
+      <div className="stock-chart-section">
+        <div className="stock-chart-header">
+          <div>
+            <h4>Stock Price Performance</h4>
+            <span>Historical market data unavailable</span>
+          </div>
+
+          <span className="chart-timeframe">1W</span>
+        </div>
+      </div>
+    );
+  }
+
+  const labels = history.map((item) =>
+    new Date(item.date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+    }),
   );
+
+  const prices = history.map((item) => Number(item.close.toFixed(2)));
+
+  const firstPrice = prices[0];
+  const lastPrice = prices[prices.length - 1];
+
+  const chartIsDown = lastPrice < firstPrice;
 
   const data = {
     labels,
+
     datasets: [
       {
         data: prices,
-        borderColor: isDown ? "#dc2626" : "#059669",
-        backgroundColor: isDown
+
+        borderColor: chartIsDown ? "#dc2626" : "#059669",
+
+        backgroundColor: chartIsDown
           ? "rgba(220, 38, 38, 0.06)"
           : "rgba(5, 150, 105, 0.06)",
+
         borderWidth: 2,
-        pointRadius: 0,
-        pointHoverRadius: 4,
+
+        pointRadius: 3,
+
+        pointHoverRadius: 5,
+
         tension: 0.35,
+
         fill: true,
       },
     ],
@@ -54,6 +128,7 @@ const StockPriceChart = ({ price, isDown }) => {
 
   const options = {
     responsive: true,
+
     maintainAspectRatio: false,
 
     plugins: {
@@ -82,6 +157,7 @@ const StockPriceChart = ({ price, isDown }) => {
 
         ticks: {
           color: "#9ca3af",
+
           font: {
             size: 10,
           },
@@ -113,6 +189,7 @@ const StockPriceChart = ({ price, isDown }) => {
 
     interaction: {
       intersect: false,
+
       mode: "index",
     },
   };
@@ -121,11 +198,12 @@ const StockPriceChart = ({ price, isDown }) => {
     <div className="stock-chart-section">
       <div className="stock-chart-header">
         <div>
-          <h4>Today's Price Movement</h4>
-          <span>Simulated intraday data</span>
+          <h4>Stock Price Performance</h4>
+
+          <span>Historical NSE market data</span>
         </div>
 
-        <span className="chart-timeframe">1D</span>
+        <span className="chart-timeframe">1W</span>
       </div>
 
       <div className="stock-chart-container">
